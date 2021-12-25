@@ -1,0 +1,196 @@
+diff --git a/target/linux/ramips/dts/mt7621_mercury_d21g.dts b/target/linux/ramips/dts/mt7621_mercury_d21g.dts
+new file mode 100644
+index 0000000000..aa5f48141b
+--- /dev/null
++++ b/target/linux/ramips/dts/mt7621_mercury_d21g.dts
+@@ -0,0 +1,144 @@
++#include "mt7621.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
++
++/ {
++     compatible = "mercury,d21g", "mediatek,mt7621-soc";
++     model = "Mercury D21G";
++
++     aliases {
++         led-boot = &led_status;
++         led-failsafe = &led_status;
++         led-running = &led_status;
++         led-upgrade = &led_status;
++     };
++
++     chosen {
++         bootargs = "console=ttyS0,57600";
++     };
++
++     leds {
++         compatible = "gpio-leds";
++
++         led_status: status {
++             label = "d21g:white:status";
++             gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
++         };
++
++     };
++
++     keys {
++         compatible = "gpio-keys";
++
++         reset {
++             label = "reset";
++             gpios = <&gpio 8 GPIO_ACTIVE_LOW>;
++             linux,code = <KEY_RESTART>;
++         };
++     };
++
++};
++
++
++&spi0 {
++        status = "okay";
++
++        flash@0 {
++                compatible = "jedec,spi-nor";
++                reg = <0>;
++                spi-max-frequency = <10000000>;
++
++                partitions {
++                        compatible = "fixed-partitions";
++                        #address-cells = <1>;
++                        #size-cells = <1>;
++
++                        partition@0 {
++                                label = "u-boot";
++                                reg = <0x0 0x20000>;
++                                read-only;
++                        };
++
++                        partition@20000 {
++                                label = "u-boot-env";
++                                reg = <0x20000 0x10000>;
++                                read-only;
++                        };
++
++                        factory: partition@30000 {
++                                label = "factory";
++                                reg = <0x30000 0x10000>;
++								read-only;
++                        };
++
++                        partition@40000 {
++                                compatible = "denx,uimage";
++                                label = "firmware";
++                                reg = <0x40000 0x7b0000>;
++                        };
++                };
++        };
++};
++
++&gmac0 {
++        mtd-mac-address = <&factory 0xe000>;
++};
++
++&switch0 {
++        ports {
++                port@0 {
++                        status = "okay";
++                        label = "wan";
++						mtd-mac-address = <&factory 0xe000>;
++                        mtd-mac-address-increment = <1>;
++                };
++
++                port@2 {
++                        status = "okay";
++                        label = "lan1";
++                };
++
++                port@3 {
++                        status = "okay";
++                        label = "lan2";
++                };
++
++                port@4 {
++                        status = "okay";
++                        label = "lan3";
++                };
++        };
++};
++
++&state_default {
++     gpio {
++         groups = "jtag", "uart2", "uart3", "wdt";
++         function = "gpio";
++     };
++};
++
++&pcie {
++     status = "okay";
++};
++
++
++&pcie0 {
++     mt76@0,0 {
++         reg = <0x0000 0 0 0 0>;
++         mediatek,mtd-eeprom = <&factory 0x0000>;
++		 mtd-mac-address = <&factory 0xe000>;
++         ieee80211-freq-limit = <2400000 2500000>;
++     };
++};
++
++
++&pcie1 {
++     mt76@0,0 {
++         reg = <0x0000 0 0 0 0>;
++         mediatek,mtd-eeprom = <&factory 0x8000>;
++		 mtd-mac-address = <&factory 0xe000>;
++         mtd-mac-address-increment = <2>;
++         ieee80211-freq-limit = <5000000 6000000>;
++     };
++};
+diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
+index 35c5627264..ca4b850b46 100644
+--- a/target/linux/ramips/image/mt7621.mk
++++ b/target/linux/ramips/image/mt7621.mk
+@@ -949,6 +949,16 @@ define Device/mediatek_mt7621-eval-board
+ endef
+ TARGET_DEVICES += mediatek_mt7621-eval-board
+ 
++define Device/mercury_d21g
++  $(Device/dsa-migration)
++  $(Device/uimage-lzma-loader)
++  IMAGE_SIZE := 7808k
++  DEVICE_MODEL := D21G
++  DEVICE_VENDOR := Mercury
++  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7615-firmware
++endef
++TARGET_DEVICES += mercury_d21g
++
+ define Device/MikroTik
+   $(Device/dsa-migration)
+   DEVICE_VENDOR := MikroTik
+diff --git a/target/linux/ramips/mt7621/base-files/etc/board.d/02_network b/target/linux/ramips/mt7621/base-files/etc/board.d/02_network
+index 342704ee30..310f1e21ee 100644
+--- a/target/linux/ramips/mt7621/base-files/etc/board.d/02_network
++++ b/target/linux/ramips/mt7621/base-files/etc/board.d/02_network
+@@ -29,6 +29,9 @@ ramips_setup_interfaces()
+ 	xiaomi,redmi-router-ac2100)
+ 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
+ 		;;
++	mercury,d21g)
++       ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
++        ;;
+ 	asiarf,ap7621-001|\
+ 	humax,e10|\
+ 	winstars,ws-wn583a6)
+@@ -153,6 +156,10 @@ ramips_setup_macs()
+ 		wan_mac=$lan_mac
+ 		label_mac=$lan_mac
+ 		;;
++	mercury,d21g)
++         lan_mac=$(mtd_get_mac_binary factory 0xe000)
++         wan_mac=$(mtd_get_mac_binary factory 0xe006)
++                ;;
+ 	mikrotik,routerboard-750gr3|\
+ 	mikrotik,routerboard-760igs|\
+ 	mikrotik,routerboard-m11g|\
