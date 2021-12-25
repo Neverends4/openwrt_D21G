@@ -8,7 +8,7 @@ For personal record usage. If you bumped into this repo and want to use the patc
   
 2. To flash openwrt on this router you need some knowledge on building openwrt, flashing SOP and building EEPROM, this is not for a faint of heart or a newbie, **YOU HAVE BEEN WARNED**.
   
-3. There is no known bugs to exploit for enabling ssh with factory firmware, not that I know of at least. So to flash openwrt you need to tear down the unit, buy an SOP8 test clip and program the famous breed bootloader into the ROM.
+3. There is no known bugs to exploit for enabling ssh with factory firmware, not that I know of at least. So to flash openwrt you need to tear down the unit, buy an SOP8 test clip and program the famous breed bootloader onto the ROM.
   
 4. The breed to use is named **breed-mt7621-xunlei-timeplug.bin**
   
