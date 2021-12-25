@@ -10,7 +10,7 @@ For personal record usage. If you bumped into this repo and want to use the patc
   
 3. There is no known bugs to exploit for enabling ssh with factory firmware, not that I know of at least. So to flash openwrt you need to tear down the unit, buy an SOP8 test clip and program the famous breed bootloader onto the ROM.
   
-4. The breed to use is named **breed-mt7621-xunlei-timeplug.bin**
+4. The breed to use is named **breed-mt7621-xunlei-timeplug.bin**, using mtd layout **"compact (0x40000)"**.
   
 5. You need to backup factory firmware image of 8 MB using breed, and extract and build a 64k EEPROM compatible with openwrt, search online if you have no idea what it is.
   
