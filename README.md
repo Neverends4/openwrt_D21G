@@ -4,7 +4,7 @@ Adding dts and necessary files to support **Mercury D21G** router in openwrt
 
 For personal record usage. If you bumped into this repo and want to use the patch, some hints below:
 
-1. This patch only applies to **Mercury D21G**, an 802.11ac router with MT7621 CPU, MT7603N+MT7611EN wirelss chips, 8M NOR ROM and 128M DDR3 RAM.
+1. This patch only applies to **Mercury D21G**, an 802.11ac router with MT7621 CPU, MT7603N+MT7611EN wireless chips, 8M NOR ROM and 128M DDR3 RAM.
   
 2. To flash openwrt on this router you need some knowledge on building openwrt, flashing SOP and building EEPROM, this is not for a faint of heart or a newbie, **YOU HAVE BEEN WARNED**.
   
